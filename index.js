@@ -36,6 +36,8 @@ const HTML_PAGE = `
             --radius-md: 8px;
             --radius-lg: 12px;
             --radius-xl: 16px;
+            --github-color: #333;
+            --moretools-color: #8b5cf6;
         }
         
         * {
@@ -66,6 +68,7 @@ const HTML_PAGE = `
             text-align: center;
             margin-bottom: 30px;
             border: 1px solid var(--border-color);
+            position: relative;
         }
         
         .header h1 {
@@ -366,6 +369,54 @@ const HTML_PAGE = `
         margin-top: 15px;
     }
     /* ============ 结束新增样式 ============ */
+    
+    /* ============ 右上角按钮样式 ============ */
+    .header-buttons {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        gap: 12px;
+        z-index: 10;
+    }
+    
+    .header-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px;
+        border-radius: 30px;
+        background: var(--surface-color);
+        box-shadow: var(--shadow-md);
+        transition: all 0.2s ease;
+        border: 1px solid var(--border-color);
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 0 18px;
+        font-size: 14px;
+    }
+    
+    .header-button:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .github-button {
+        background: var(--github-color);
+        gap: 8px;
+    }
+    
+    .moretools-button {
+        background: var(--moretools-color);
+        padding: 0 22px;
+    }
+    
+    .github-icon {
+        width: 20px;
+        height: 20px;
+    }
+    /* ============ 结束按钮样式 ============ */
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -412,13 +463,49 @@ const HTML_PAGE = `
             .qr-code {
                 margin: 0 auto;
             }
+            
+            /* 移动设备按钮适配 */
+            .header-buttons {
+                top: 15px;
+                right: 15px;
+                gap: 8px;
+            }
+            
+            .header-button {
+                height: 36px;
+                font-size: 13px;
+                padding: 0 14px;
+            }
+            
+            .moretools-button {
+                padding: 0 16px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>声音魔法师</h1>
+            <!-- 右上角按钮 -->
+            <div class="header-buttons">
+                <a href="https://github.com/mkboy95/tts" 
+                   target="_blank" 
+                   class="header-button github-button"
+                   title="GitHub仓库">
+                    <svg class="github-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    GitHub
+                </a>
+                <a href="http://www.pj365.top" 
+                   target="_blank" 
+                   class="header-button moretools-button"
+                   title="更多神器">
+                    更多神器
+                </a>
+            </div>
+            
+            <h1>超赞声音魔法师</h1>
             <p class="subtitle">让文字开口说话的神器</p>
             <div class="features">
                 <div class="feature-item">
@@ -667,9 +754,6 @@ async function handleRequest(request) {
         return handleOptions(request);
     }
 
-
-
-
     const requestUrl = new URL(request.url);
     const path = requestUrl.pathname;
 
@@ -749,9 +833,6 @@ async function getVoice(text, voiceName = "zh-CN-XiaoxiaoNeural", rate = '+0%', 
         const maxChunkSize = 2000;
         const chunks = text.trim().split("\n");
 
-
-        // 获取每个分段的音频
-        //const audioChunks = await Promise.all(chunks.map(chunk => getAudioChunk(chunk, voiceName, rate, pitch, volume,style, outputFormat)));
         let audioChunks = []
         while (chunks.length > 0) {
             try {
@@ -777,7 +858,6 @@ async function getVoice(text, voiceName = "zh-CN-XiaoxiaoNeural", rate = '+0%', 
             }
         }
 
-
         // 将音频片段拼接起来
         const concatenatedAudio = new Blob(audioChunks, { type: 'audio/mpeg' });
         const response = new Response(concatenatedAudio, {
@@ -786,7 +866,6 @@ async function getVoice(text, voiceName = "zh-CN-XiaoxiaoNeural", rate = '+0%', 
                 ...makeCORSHeaders()
             }
         });
-
 
         return response;
 
@@ -808,8 +887,6 @@ async function getVoice(text, voiceName = "zh-CN-XiaoxiaoNeural", rate = '+0%', 
         });
     }
 }
-
-
 
 //获取单个音频数据
 async function getAudioChunk(text, voiceName, rate, pitch, volume, style, outputFormat = 'audio-24khz-48kbitrate-mono-mp3') {
@@ -913,8 +990,6 @@ async function getEndpoint() {
     }
 }
 
-
-
 function makeCORSHeaders() {
     return {
         "Access-Control-Allow-Origin": "*",
@@ -969,5 +1044,3 @@ function dateFormat() {
     const formattedDate = (new Date()).toUTCString().replace(/GMT/, "").trim() + " GMT";
     return formattedDate.toLowerCase();
 }
-
-
